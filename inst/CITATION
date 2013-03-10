@@ -1,0 +1,22 @@
+citHeader("To cite package 'COBRA' please use:")
+
+vers <- paste("R package version", meta$Version)
+
+citEntry(entry="Unpublished",
+         author = personList(as.person("G\'erard Biau"),
+                             as.person("Aur\'elie Fischer"),
+			     as.person("Benjamin Guedj"),
+			     as.person("James D. Malley")),
+         title = "COBRA: A Nonlinear Aggregation Strategy",
+         year = "2013",
+	 url = "http://hal.archives-ouvertes.fr/hal-00798579",
+	 note = "Submitted",
+	 textVersion ="G. Biau, A. Fischer, B. Guedj and J. D. Malley (2013). COBRA: A Nonlinear Aggregation Strategy, Submitted.")
+
+citEntry(entry="Manual",
+	 author = as.person("Benjamin Guedj"),
+	 title = "COBRA: Nonlinear Aggregation of Predictors",
+	 year = "2013",
+	 note = vers,
+  	 url = "http://cran.r-project.org/web/packages/COBRA/index.html",
+	 textVersion =paste("B. Guedj (2013). COBRA: Nonlinear Aggregation of Predictors. ",vers, ", http://cran.r-project.org/web/packages/COBRA/index.html"),sep="")
