@@ -9,6 +9,7 @@ function(train.design,
          parallel = FALSE,
          nb.cpus = 2,
          plots = FALSE,
+         savePlots = FALSE,
          logs = FALSE,
          progress = TRUE,
          path = "")
@@ -26,13 +27,13 @@ function(train.design,
       }
     COBRA.tree <- function(x) ## cart
       {
-        a <- tree(as.formula(paste("train.responses.1~",paste("V",c(1:d),sep="",collapse="+"),collapse="",sep="")), data = as.data.frame(train.design.1))
+        a <- tree(as.formula(paste("train.responses.1~",paste(colnames(as.data.frame(x)),sep="",collapse="+"),collapse="",sep="")), data = as.data.frame(train.design.1))
         res <- as.vector(predict(a,as.data.frame(x)))
         return(res)
       }
     COBRA.ridge <- function(x) ## ridge
       {
-        a <- linearRidge(as.formula(paste("train.responses.1~",paste("V",c(1:d),sep="",collapse="+"),collapse="",sep="")), data = as.data.frame(train.design.1))
+        a <- linearRidge(as.formula(paste("train.responses.1~",paste(colnames(as.data.frame(x)),sep="",collapse="+"),collapse="",sep="")), data = as.data.frame(train.design.1))
         res <- as.vector(predict(a,as.data.frame(x)))
         return(res)
       }
@@ -171,19 +172,25 @@ function(train.design,
     test.eval <- test.machines
     predictor <- wrapper.COBRA(eps)
     res <- list(predict = predictor)
+    if(progress) cat('Quadratic risk\n')
+    risks.machines <- numeric(n.machines + 1)
+    names(risks.machines) <- c(machines.names,'COBRA')
+    risks.machines[1:n.machines] <- apply(X = test.machines.3, MARGIN = 2, FUN = func.risk)
+    risks.machines[n.machines + 1] <- func.risk(train.COBRA)
+    if(progress) print(risks.machines)
     if(logs)
       {
-        risks.machines <- numeric(n.machines + 1)
-        risks.machines[1:n.machines] <- apply(X = test.machines.3, MARGIN = 2, FUN = func.risk)
-        risks.machines[n.machines + 1] <- func.risk(train.COBRA)
         write.table(t(risks.machines), file = paste(path,"risks.txt",sep=""), append = FALSE, row.names  = FALSE, col.names = FALSE)
       }
     if(plots)
       {
         scenarii <- c("1 machine",paste(2:n.machines,"machines"))
-        pdf(paste(path,"epscal.pdf",sep=""))
+        if(savePlots)
+          {
+            pdf(paste(path,"epscal.pdf",sep=""))
+          }
         plot(evect,risks[,1],ylim=c(0,max(risks)),xlab="Epsilon",ylab="Quadratic Risk",type="l")
-        #title("Testing different scenarii to adjust parameters")
+        ##title("Testing different scenarii to adjust parameters")
         legend(x="bottomright",legend=scenarii,col=1:n.machines,cex=0.8,lty=1,bty="n")
         abline(v = epsoptvec[1],lty=3)
         for(j in 2:n.machines)
@@ -195,8 +202,13 @@ function(train.design,
                 points(eps,min(risks),pch = 19,col = j,cex = 1.5)
               }
           }
-        dev.off()
-        pdf(paste(path,"predict-machines.pdf",sep=""))
+        if(savePlots)
+          {
+            dev.off()
+            pdf(paste(path,"predict-machines.pdf",sep=""))
+          } else {
+            dev.new()
+          }
         lim1 <- min(min(train.responses.3),min(train.COBRA))
         lim2 <- max(max(train.responses.3),max(train.COBRA))
         plot(train.responses.3,train.COBRA,col=1,pch=19,xlab="Responses",ylab="Predictions",xlim=c(lim1,lim2),ylim=c(lim1,lim2))
@@ -207,7 +219,10 @@ function(train.design,
             points(train.responses.3,test.machines.3[,imachines],col=imachines+1)
           }
         legend(x="bottomright",legend=c('COBRA',machines.names),col=1:(n.machines+1),cex=0.8,pch=c(19,rep(21,n.machines)),bty="n")
-        dev.off()
+        if(savePlots)
+          {
+            dev.off()
+          }
       }
     return(res)
   }

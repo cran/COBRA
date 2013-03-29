@@ -16,8 +16,8 @@ used. COBRA may natively parallelize the computations.
 \tabular{ll}{
 Package: \tab COBRA\cr
 Type: \tab Package\cr
-Version: \tab 0.99\cr
-Date: \tab 2013-03-10\cr
+Version: \tab 0.99.1\cr
+Date: \tab 2013-03-29\cr
 License: \tab GPL (>= 2)\cr
 }
 }
@@ -30,7 +30,7 @@ Maintainer: Benjamin Guedj <benjamin.guedj@upmc.fr>
   \url{http://www.lsta.upmc.fr/doct/guedj/index.html}
 
   G. Biau, A. Fischer, B. Guedj and J. D. Malley (2013), COBRA: A
-  Nonlinear Aggregation Strategy. \url{http://hal.archives-ouvertes.fr/hal-00798579}
+  Nonlinear Aggregation Strategy. \url{http://arxiv.org/abs/1303.2236} and \url{http://hal.archives-ouvertes.fr/hal-00798579}
 }
 \keyword{ package }
 \seealso{
@@ -50,4 +50,6 @@ res <- COBRA(train.design = train.design,
              train.responses = train.responses,
              test = test)
 print(cbind(res$predict,test.responses))
+plot(test.responses,res$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
+abline(0,1,lty=2)
 }

@@ -10,11 +10,24 @@ The function COBRA delivers prediction outcomes for a testing sample on
 the basis of a training sample and a bunch of basic regression
 machines. By default, those machines are wrappers to the R packages
 \code{lars}, \code{ridge}, \code{FNN}, \code{tree} and
-\code{randomForest}, however any regression predictor may be
-used. COBRA may natively parallelize the computations.
+\code{randomForest}, however any regression predictor may be used. COBRA
+may natively parallelize the computations.
 }
 \usage{
-COBRA(train.design, train.responses, split, test, machines, machines.names, grid = 100, parallel = FALSE, nb.cpus = 2, plots = FALSE, logs = FALSE, progress = TRUE, path = "")
+COBRA(train.design,
+      train.responses,
+      split,
+      test,
+      machines,
+      machines.names,
+      grid = 100,
+      parallel = FALSE,
+      nb.cpus = 2,
+      plots = FALSE,
+      savePlots = FALSE,
+      logs = FALSE,
+      progress = TRUE,
+      path = "")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -54,8 +67,13 @@ COBRA(train.design, train.responses, split, test, machines, machines.names, grid
     used. Obviously this should not exceed the number of available cpus!
 %%     ~~Describe \code{nb.cpus} here~~
 }
-  \item{plots}{Optional. If \code{TRUE}, explanatory plots are generated
+  \item{plots}{Optional. If \code{TRUE}, explanatory plots about
+    calibrating \code{epsilon} and \code{alpha} (see publication) are generated
     according to the \code{path} variable.
+%%     ~~Describe \code{plots} here~~
+}
+\item{savePlots}{Optional. If \code{TRUE}, plots are saved as .pdf files
+  according to \code{path}, otherwise they pop up in the R IDE.
 %%     ~~Describe \code{plots} here~~
 }
   \item{logs}{Optional. If \code{TRUE}, quadratic risks over the
@@ -63,7 +81,8 @@ COBRA(train.design, train.responses, split, test, machines, machines.names, grid
     "risks.txt" according to the \code{path} variable.
 %%     ~~Describe \code{logs} here~~
 }
-  \item{progress}{Optional. If \code{TRUE}, a progress bar is printed.
+  \item{progress}{Optional. If \code{TRUE}, a progress bar and final
+    quadratic errors are printed.
 %%     ~~Describe \code{progress} here~~
 }
   \item{path}{Optional. If \code{plots} or \code{logs} are \code{TRUE},
@@ -89,7 +108,7 @@ COBRA(train.design, train.responses, split, test, machines, machines.names, grid
   \url{http://www.lsta.upmc.fr/doct/guedj/index.html}
 
   G. Biau, A. Fischer, B. Guedj and J. D. Malley (2013), COBRA: A
-  Nonlinear Aggregation Strategy. \url{http://hal.archives-ouvertes.fr/hal-00798579}
+  Nonlinear Aggregation Strategy. \url{http://arxiv.org/abs/1303.2236} and \url{http://hal.archives-ouvertes.fr/hal-00798579}
 %% ~put references to the literature/web site here ~
 }
 \author{Benjamin Guedj
@@ -119,6 +138,8 @@ res <- COBRA(train.design = train.design,
              train.responses = train.responses,
              test = test)
 print(cbind(res$predict,test.responses))
+plot(test.responses,res$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
+abline(0,1,lty=2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
