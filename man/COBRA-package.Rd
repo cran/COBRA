@@ -9,15 +9,16 @@ Nonlinear Aggregation of Predictors
 the basis of a training sample and a bunch of basic regression
 machines. By default, those machines are wrappers to the R packages
 \code{lars}, \code{ridge}, \code{FNN}, \code{tree} and
-\code{randomForest}, however any regression predictor may be
-used. COBRA may natively parallelize the computations.
+\code{randomForest}, covering a minimal spectrum in contemporary
+prediction methods for regression. However the most interesting way to use COBRA
+is to use any regression method suggested by the context (see argument \code{machines}). COBRA may natively parallelize the computations (use option \code{parallel}).
 }
 \details{
 \tabular{ll}{
 Package: \tab COBRA\cr
 Type: \tab Package\cr
-Version: \tab 0.99.1\cr
-Date: \tab 2013-03-29\cr
+Version: \tab 0.99.2\cr
+Date: \tab 2013-07-03\cr
 License: \tab GPL (>= 2)\cr
 }
 }
@@ -46,10 +47,29 @@ train.design <- as.matrix(X[1:ntrain,])
 train.responses <- Y[1:ntrain]
 test <- as.matrix(X[-(1:ntrain),])
 test.responses <- Y[-(1:ntrain)]
+
+## using the default machines
 res <- COBRA(train.design = train.design,
              train.responses = train.responses,
              test = test)
+
+## using own machines
+machines.names <- c("Soothsayer","Dummy")
+machines <- matrix(nr = n, nc = 2, data = 0)
+machines[,1] <- Y+rnorm(n = n, sd=.1)          ## soothsayer
+machines[,2] <- mean(train.responses)          ## dummy prediction, averaging train.responses
+
+res2 <- COBRA(train.design = train.design,
+              train.responses = train.responses,
+              test = test,
+              machines = machines,
+              machines.names = machines.names)
+
 print(cbind(res$predict,test.responses))
 plot(test.responses,res$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
+abline(0,1,lty=2)
+
+print(cbind(res2$predict,test.responses))
+plot(test.responses,res2$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
 abline(0,1,lty=2)
 }

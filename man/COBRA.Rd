@@ -10,8 +10,9 @@ The function COBRA delivers prediction outcomes for a testing sample on
 the basis of a training sample and a bunch of basic regression
 machines. By default, those machines are wrappers to the R packages
 \code{lars}, \code{ridge}, \code{FNN}, \code{tree} and
-\code{randomForest}, however any regression predictor may be used. COBRA
-may natively parallelize the computations.
+\code{randomForest}, covering a somewhat wide spectrum in contemporary
+prediction methods for regression. However the most interesting way to use COBRA
+is to use any regression method suggested by the context (see argument \code{machines}). COBRA may natively parallelize the computations (use option \code{parallel}).
 }
 \usage{
 COBRA(train.design,
@@ -46,9 +47,10 @@ COBRA(train.design,
 }
   \item{machines}{Optional. Regression basic machines provided by the
     user. This should be a matrix, whose number of rows is the length of
-    the training sample plus the length of the testing sample, and with
+    the training sample (ntrain) plus the length of the testing sample (ntest), and with
     as many columns as machines. Element (i,j) of this matrix is
-    assumed to be r_j(X_i), the (scalar) prediction of machine j for query point X_i.
+    assumed to be r_j(X_i), the (scalar) prediction of machine j for
+    query point X_i, where i is from 1 to ntrain+ntest.
 %%     ~~Describe \code{machines} here~~
 }
   \item{machines.names}{Optional. If \code{machines} is provided, a list
@@ -134,11 +136,30 @@ train.design <- as.matrix(X[1:ntrain,])
 train.responses <- Y[1:ntrain]
 test <- as.matrix(X[-(1:ntrain),])
 test.responses <- Y[-(1:ntrain)]
+
+## using the default machines
 res <- COBRA(train.design = train.design,
              train.responses = train.responses,
              test = test)
+
+## using own machines
+machines.names <- c("Soothsayer","Dummy")
+machines <- matrix(nr = n, nc = 2, data = 0)
+machines[,1] <- Y+rnorm(n = n, sd=.1)          ## soothsayer
+machines[,2] <- mean(train.responses)          ## dummy prediction, averaging train.responses
+
+res2 <- COBRA(train.design = train.design,
+              train.responses = train.responses,
+              test = test,
+              machines = machines,
+              machines.names = machines.names)
+
 print(cbind(res$predict,test.responses))
 plot(test.responses,res$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
+abline(0,1,lty=2)
+
+print(cbind(res2$predict,test.responses))
+plot(test.responses,res2$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
 abline(0,1,lty=2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

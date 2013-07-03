@@ -123,7 +123,7 @@ function(train.design,
         n.machines <- dim(machines)[2]
         test.machines.2 <- machines[1:split,]
         test.machines.3 <- machines[(split+1):n.train,]
-        test.machines <- machines[(n.train+1):n.test,]
+        test.machines <- machines[(n.train+1):(n.train+n.test),]
       }
     if(progress) cat('Calibrating parameters')
     emin <- 1e-9

@@ -3,8 +3,8 @@ citHeader("To cite package 'COBRA' please use:")
 vers <- paste("R package version", meta$Version)
 
 citEntry(entry="Unpublished",
-         author = personList(as.person("G\'erard Biau"),
-                             as.person("Aur\'elie Fischer"),
+         author = personList(as.person("Gerard Biau"),
+                             as.person("Aurelie Fischer"),
 			     as.person("Benjamin Guedj"),
 			     as.person("James D. Malley")),
          title = "COBRA: A Nonlinear Aggregation Strategy",
