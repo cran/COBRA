@@ -9,7 +9,7 @@
 The function COBRA delivers prediction outcomes for a testing sample on
 the basis of a training sample and a bunch of basic regression
 machines. By default, those machines are wrappers to the R packages
-\code{lars}, \code{ridge}, \code{FNN}, \code{tree} and
+\code{lars}, \code{ridge}, \code{tree} and
 \code{randomForest}, covering a somewhat wide spectrum in contemporary
 prediction methods for regression. However the most interesting way to use COBRA
 is to use any regression method suggested by the context (see argument \code{machines}). COBRA may natively parallelize the computations (use option \code{parallel}).
@@ -21,7 +21,8 @@ COBRA(train.design,
       test,
       machines,
       machines.names,
-      grid = 100,
+      grid = 200,
+      alpha.machines,
       parallel = FALSE,
       nb.cpus = 2,
       plots = FALSE,
@@ -60,6 +61,10 @@ COBRA(train.design,
   \item{grid}{Optional. How precise is the discretization scheme for
     calibrating the parameters.
 %%     ~~Describe \code{grid} here~~
+}
+\item{alpha.machines}{Optional. Coerce COBRA to use exactly
+  \code{alpha.machines}. Obviously this should be a integer between 1 and the
+  total number of machines.
 }
   \item{parallel}{Optional. If \code{TRUE}, computations will be
     dispatched over available cpus.
@@ -138,9 +143,17 @@ test <- as.matrix(X[-(1:ntrain),])
 test.responses <- Y[-(1:ntrain)]
 
 ## using the default machines
+if(require(lars) && require(tree) && require(ridge) &&
+require(randomForest))
+{
 res <- COBRA(train.design = train.design,
              train.responses = train.responses,
              test = test)
+
+print(cbind(res$predict,test.responses))
+plot(test.responses,res$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
+abline(0,1,lty=2)
+}
 
 ## using own machines
 machines.names <- c("Soothsayer","Dummy")
@@ -154,10 +167,6 @@ res2 <- COBRA(train.design = train.design,
               machines = machines,
               machines.names = machines.names)
 
-print(cbind(res$predict,test.responses))
-plot(test.responses,res$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
-abline(0,1,lty=2)
-
 print(cbind(res2$predict,test.responses))
 plot(test.responses,res2$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
 abline(0,1,lty=2)
@@ -168,3 +177,4 @@ abline(0,1,lty=2)
 \keyword{ aggregation }% __ONLY ONE__ keyword per line
 \keyword{ prediction }
 \keyword{ regression }
+\keyword{ machinelearning }
