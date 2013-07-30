@@ -1,7 +1,7 @@
 .onAttach <- function(lib, pkg)
 {
   packageStartupMessage('**************************************************************')
-  packageStartupMessage('*                          COBRA v0.99.3                     *')
+  packageStartupMessage('*                          COBRA v0.99.4                     *')
   packageStartupMessage('*                    Creator: Benjamin Guedj                 *')
   packageStartupMessage('*       http://www.lsta.upmc.fr/doct/guedj/index.html        *')
   packageStartupMessage('*     Please type citation("COBRA") for a citation guide     *')

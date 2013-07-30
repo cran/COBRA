@@ -17,8 +17,8 @@ is to use any regression method suggested by the context (see argument \code{mac
 \tabular{ll}{
 Package: \tab COBRA\cr
 Type: \tab Package\cr
-Version: \tab 0.99.3\cr
-Date: \tab 2013-07-26\cr
+Version: \tab 0.99.4\cr
+Date: \tab 2013-07-30\cr
 License: \tab GPL (>= 2)\cr
 }
 }
@@ -76,4 +76,15 @@ res2 <- COBRA(train.design = train.design,
 print(cbind(res2$predict,test.responses))
 plot(test.responses,res2$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
 abline(0,1,lty=2)
+
+
+%% if(require(snowfall)){
+%% res3 <- COBRA(train.design = train.design,
+%%               train.responses = train.responses,
+%%               test = test,
+%%               machines = machines,
+%%               machines.names = machines.names,
+%%               parallel=TRUE,
+%%               nb.cpus=2)
+%%}
 }

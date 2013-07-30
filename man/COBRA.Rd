@@ -21,6 +21,7 @@ COBRA(train.design,
       test,
       machines,
       machines.names,
+      logGrid = FALSE,
       grid = 200,
       alpha.machines,
       parallel = FALSE,
@@ -56,12 +57,16 @@ COBRA(train.design,
 }
   \item{machines.names}{Optional. If \code{machines} is provided, a list
     including the names of the machines.
-%%     ~~Describe \code{machines.names} here~~
-}
-  \item{grid}{Optional. How precise is the discretization scheme for
-    calibrating the parameters.
-%%     ~~Describe \code{grid} here~~
-}
+    %%     ~~Describe \code{machines.names} here~~
+  }
+  \item{logGrid}{Optional. If \code{TRUE}, parameter epsilon is generated
+    according to a logarithmic scale. This should be \code{TRUE} if the
+    user has a clue about the small magnitude of predictions.
+  }
+  \item{grid}{Optional. How many points should be used in the discretization scheme for
+    calibrating the parameter epsilon.
+    %%     ~~Describe \code{grid} here~~
+  }
 \item{alpha.machines}{Optional. Coerce COBRA to use exactly
   \code{alpha.machines}. Obviously this should be a integer between 1 and the
   total number of machines.
@@ -92,7 +97,7 @@ COBRA(train.design,
     quadratic errors are printed.
 %%     ~~Describe \code{progress} here~~
 }
-  \item{path}{Optional. If \code{plots} or \code{logs} are \code{TRUE},
+  \item{path}{Optional. If \code{savePlots} and either \code{plots} or \code{logs} are \code{TRUE},
     where should the corresponding files be created?
 %%     ~~Describe \code{path} here~~
 }
@@ -118,12 +123,14 @@ COBRA(train.design,
   Nonlinear Aggregation Strategy. \url{http://arxiv.org/abs/1303.2236} and \url{http://hal.archives-ouvertes.fr/hal-00798579}
 %% ~put references to the literature/web site here ~
 }
-\author{Benjamin Guedj
+\author{Benjamin Guedj <benjamin.guedj@upmc.fr>
 %%  ~~who you are~~
 }
-%% \note{
-%%   %%  ~~further notes~~
-%% }
+\note{
+  Caution: If your data is ordered, you should shuffle the observations
+  before calling COBRA since the algorithm assumes all data points are
+  independent and identically distributed.
+}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
@@ -170,6 +177,17 @@ res2 <- COBRA(train.design = train.design,
 print(cbind(res2$predict,test.responses))
 plot(test.responses,res2$predict,xlab="Responses",ylab="Predictions",pch=3,col=2)
 abline(0,1,lty=2)
+
+%% if(require(snowfall)){
+%% res3 <- COBRA(train.design = train.design,
+%%               train.responses = train.responses,
+%%               test = test,
+%%               machines = machines,
+%%               machines.names = machines.names,
+%%               parallel=TRUE,
+%%               nb.cpus=2)
+%%}
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

@@ -5,6 +5,7 @@ function(train.design,
                   test,
                   machines,
                   machines.names,
+                  logGrid = FALSE,
                   grid = 200,
                   alpha.machines,
                   parallel = FALSE,
@@ -61,7 +62,7 @@ function(train.design,
                 poids <- sweep(poids,1,rowSums(poids),FUN="/")
                 if(any(is.nan(poids)))
                     {
-                        compteur <- compteur + 1
+                        compteur <<- compteur + 1
                     }
                 poids[which(is.nan(poids))] <- 0
                 res <- poids%*%train.responses.2
@@ -70,6 +71,10 @@ function(train.design,
         epsBuild <- function(x)
             {
                 return(max(x)-min(x))
+            }
+        lseq <- function(from,to,steps)
+            {
+                return(exp(seq(log(from), log(to), length.out = steps)))
             }
         func.risk <- function(x)
             {
@@ -138,10 +143,17 @@ function(train.design,
                 test.machines <- machines[(n.train+1):(n.train+n.test),]
             }
         if(progress) cat('Calibrating parameters')
-        emin <- 1e-15
-        emax <- max(apply(test.machines.2, 2, epsBuild),apply(test.machines.3, 2, epsBuild),apply(test.machines, 2, epsBuild))/2
-        estep <- (emax - emin)/grid
-        evect <- seq(emin, emax, estep)
+        ## emin <- 1e-320
+        ## emax <- max(apply(test.machines.2, 2, epsBuild),apply(test.machines.3, 2, epsBuild),apply(test.machines, 2, epsBuild))*2
+        emin <- max(min(diff(sort(as.vector(test.machines.2))),diff(sort(as.vector(test.machines.3))),diff(sort(as.vector(test.machines)))),1e-300)
+        emax <- 2*max(epsBuild(test.machines.2),epsBuild(test.machines.3),epsBuild(test.machines))
+        estep <- (emax - emin)/(grid-1)
+        if(!logGrid)
+            {
+                evect <- seq(emin, emax, estep)
+            } else {
+                evect <- lseq(emin, emax, grid)
+            }
         n.e <- length(evect)
         risks <- matrix(nrow = n.e, ncol = n.machines, data = 0)
         if(missing(alpha.machines))
@@ -165,9 +177,12 @@ function(train.design,
                         if(progress) cat('... ',floor(100*imachines/n.machines),'%',sep='')
                     }
             } else {
-                library(snowfall)
-                sfInit(parallel = TRUE, cpus = nb.cpus)
-                sfClusterEval(dyn.load("COBRA.so"))
+                require(snowfall)
+                sfInit(parallel = TRUE, cpus = nb.cpus,nostart=TRUE)
+                sfLibrary("snowfall", character.only=TRUE)
+                sfLibrary("COBRA", character.only = TRUE)
+                ## sfInit(parallel = TRUE, cpus = nb.cpus)
+                ## sfClusterEval(dyn.load("COBRA.so"))
                 for(j in alphaseq)
                     {
                         alpha <- j
@@ -190,11 +205,13 @@ function(train.design,
             }
         eps <- epsoptvec[alphaopt]
         train.COBRA <- wrapper.COBRA(eps)
-        if(progress) cat('.\nRetaining ',alphaopt,' machine(s) out of ',n.machines,', with epsilon = ',eps,'.\n',sep='')
+        if(progress) cat('.\nRetaining ',alphaopt,' machine(s) out of ',n.machines,', with epsilon = ',eps,' (range ',emin,' to ',emax,').\n',sep='')
         n.eval <- n.test
         test.eval <- test.machines
         compteurOLD <- compteur
         predictor <- wrapper.COBRA(eps)
+        ## print(compteurOLD)
+        ## print(compteur)
         if(compteurOLD != compteur)
             {
                 warning("Caution: Some weights are exactly zero. A higher value for grid might help.")
@@ -217,7 +234,12 @@ function(train.design,
                     {
                         pdf(paste(path,"epscal.pdf",sep=""))
                     }
-                plot(evect,risks[,1],ylim=c(0,max(risks)),xlab="Epsilon",ylab="Quadratic Risk",type="l")
+                if(logGrid)
+                    {
+                        plot(evect,risks[,1],ylim=c(0,max(risks)),log="x",xlab="Epsilon",ylab="Quadratic Risk",type="l")
+                    } else {
+                        plot(evect,risks[,1],ylim=c(0,max(risks)),xlab="Epsilon",ylab="Quadratic Risk",type="l")
+                    }
                 if(alphaopt == 1)
                     {
                         points(eps,min(risks),pch = 19,col = 1,cex = 1.5)
@@ -262,7 +284,12 @@ function(train.design,
                     {
                         pdf(paste(path,"epscal.pdf",sep=""))
                     }
-                plot(evect,risks[,alpha.machines],ylim=c(0,max(risks)),xlab="Epsilon",ylab="Quadratic Risk",type="l")
+                if(logGrid)
+                    {
+                        plot(evect,risks[,alpha.machines],ylim=c(0,max(risks)),log="x",lab="Epsilon",ylab="Quadratic Risk",type="l")
+                    } else {
+                        plot(evect,risks[,alpha.machines],ylim=c(0,max(risks)),lab="Epsilon",ylab="Quadratic Risk",type="l")
+                    }
                 points(eps,min(risks),pch = 19,col = 1,cex = 1.5)
                 legend(x="bottomright",legend=paste(alpha.machines,"machine(s)"),col=1,cex=0.8,lty=1,bty="n")
                 abline(v = epsoptvec[alpha.machines],col=1,lty=3)
